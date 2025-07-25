@@ -124,10 +124,93 @@
 
 ![Leaf level to split](choose_leaf_level_to_split.png)
 
+### Gradient-based One-Side Sampling (GOSS) 
+
+- Gradient-based One-Side Sampling (GOSS) is a method used in LightGBM to speed up training by reducing the amount of data used in each boosting iteration, without losing accuracy
+
+##### Why do we need sampling?
+
+- Training gradient boosting trees can be slow on very large datasets.
+
+- If we just randomly sample data points (like regular random sampling), we may lose important information, especially from data points where the model is making big errors.
+
+- GOSS solves this by selecting data points based on their gradients, which tell us how “hard” each point is to predict.
+
+#### GOSS intuition
+
+- GOSS keeps all the “hard” examples (with large gradients) because they carry more useful information for learning.
+
+- It randomly samples from the “easy” examples (small gradients), because they’re less important and can be reduced without much harm.
+
+#### How does GOSS work mathematically?
+
+![Setup](GOSS_1.png)
+
+![Correcting for biased sampling](correcting_biased_sampling.png)
+
+![Weighted Samples](weighted_samples.png)
+
+![Example](goss_example.png)
+
+#### How GOSS preserves accuracy
+
+- We keep all hard examples which have big gradients and carry important information
+
+- We keep a weighted sample of easy examples to maintain overall gradient distribution.
+
+- This gives an unbiased estimate of the full gradient and Hessian sums.
+
+- So the model trained on this smaller weighted sample behaves similarly to one trained on the full data
 
 ### Exclusive Feature Bundling
 
+- EFB is a trick LightGBM uses to reduce the number of features (columns) in your dataset without losing information.
+
+- which, Speeds up training, Saves memory, And keeps the accuracy almost the same.
+
+- It does this by bundling mutually exclusive features (features that are non-zero at different times) into one single feature.
+
 ![exclusive feature bundling](exclusive_feature_bundling.png)
+
+#### Why do we need EFB
+
+![Need of EFB](EFB_need.png)
+
+#### How does GOSS work mathematically?
+
+![EFB](efb_1.png)
+
+![Avoiding Collision](efb_2.png)
+
+![Generalizing to multiple features](efb_3.png)
+
+#### How we are decoding here?
+
+- Decoding with Mod and Floor is Like Extracting Digits in Base Systems.
+
+![Decoding 1](decoding_example_1.png)
+
+![Decoding 2](decoding_example_2.png)
+
+###### Concrete example to see this clearly
+
+![Decoding 3](decoding_example_3.png)
+
+#### How do we decide which features to bundle?
+
+- LightGBM does this using a greedy graph coloring algorithm.
+
+![Greedy Graph Coloring Algorithm](greedy_graph_coloring_algo.png)
+
+#### What is Greedy Graph Coloring algo and how does it work?
+
+-
+
+#### Example of EFB
+
+![Example](example_1.png)
+
+![Example](example_2.png)
 
 ### Regularization
 
